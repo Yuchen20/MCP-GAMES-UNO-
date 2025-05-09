@@ -5,3 +5,4 @@ langchain
 google-genai
 boto3
 umap-learn
+scikit-learn

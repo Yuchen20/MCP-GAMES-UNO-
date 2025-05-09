@@ -35,3 +35,4 @@ ENV/
 .vscode/
 *.swp
 *.swo
+/qdrant_data
