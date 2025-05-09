@@ -37,9 +37,10 @@ source .venv/bin/activate
 ## Installation
 
 ```bash
-git clone https://github.com/your-org/fastmcp-memory.git  
+git clone https://github.com/Yuchen20/Memory_MCP_Server.git  
 cd fastmcp-memory  
-pip install -r requirements.txt  
+pip install uv
+uv pip install -r requirements.txt  
 ```
 
 ## Usage
@@ -53,7 +54,7 @@ fastmcp run memory.py
 Or start a local agent that uses the memory server:
 
 ```bash
-fastmcp run agent.py
+uv run agent.py
 ```
 
 ## Configuration
