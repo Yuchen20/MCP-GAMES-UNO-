@@ -1,0 +1,7 @@
+fast-agent-mcp
+fastmcp
+pymilvus
+langchain
+google-genai
+boto3
+umap-learn
