@@ -1,3 +1,4 @@
+from itertools import tee
 from fastmcp import FastMCP
 from datetime import datetime
 import json
@@ -20,6 +21,8 @@ import uuid
 from sklearn.decomposition import PCA
 import pandas as pd
 import shutil
+from typing import Annotated
+from pydantic import Field
 
 from dotenv import load_dotenv
 
@@ -220,6 +223,7 @@ class MemoryProtocol:
             for hit in results:
                 payload = hit.payload
                 memories.append({
+                    "id": hit.id,
                     "content": payload["content"],
                     "timestamp": payload["timestamp"],
                     "metadata": payload["metadata"]
@@ -255,12 +259,53 @@ class MemoryProtocol:
             )[:limit]
             
             return [{
+                "id": hit.id,
                 "content": hit.payload["content"],
                 "timestamp": hit.payload["timestamp"],
                 "metadata": hit.payload["metadata"]
             } for hit in sorted_results]
+        
         except Exception as e:
             await log_message(f"Error getting recent memories: {str(e)}")
+            raise
+
+    async def update_memory(self, memory_id: int, new_content: str, metadata: Dict[str, Any] = None) -> bool:
+        """Update an existing memory with new content and metadata"""
+        if not self.initialized:
+            await self.initialize()
+            
+        try:
+            # Generate new embedding for the updated content
+            new_embedding = await self._generate_embedding(new_content)
+            
+            # Ensure embedding is a list of floats
+            if not isinstance(new_embedding, list):
+                new_embedding = list(new_embedding)
+            
+            # Update in Qdrant
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(
+                None,
+                lambda: self.qdrant_client.upsert(
+                    collection_name="memory_vectors",
+                    points=[
+                        models.PointStruct(
+                            id=memory_id,
+                            vector=new_embedding,
+                            payload={
+                                "content": new_content,
+                                "timestamp": datetime.now().isoformat(),
+                                "metadata": metadata or {}
+                            }
+                        )
+                    ]
+                )
+            )
+            
+            await log_message(f"Successfully updated memory with ID: {memory_id}")
+            return True
+        except Exception as e:
+            await log_message(f"Error updating memory: {str(e)}")
             raise
 
     async def visualize_memories(self) -> str:
@@ -346,7 +391,10 @@ class MemoryProtocol:
 # Initialize FastMCP with memory protocol
 mcp = FastMCP(
     name="memory_server",
-    instructions="This server provides memory management capabilities using a simplified protocol.",
+    instructions=(
+        "This server provides memory management capabilities using a simplified protocol. "
+        "It should be used automatically by the assistant to record, retrieve, and visualize user-specific information without explicit prompts."
+    ),
     log_level="ERROR"
 )
 
@@ -354,24 +402,130 @@ mcp = FastMCP(
 memory_protocol = MemoryProtocol()
 
 @mcp.tool("record")
-async def record_memory(content: str, metadata: Dict[str, Any] = None) -> List[int]:
-    """Record a new memory."""
+async def record_memory(
+    content: Annotated[str, Field(description="A concise summary of the user detail or pattern to remember." )],
+    metadata: Annotated[Dict[str, Any], Field(
+        description=(
+            "Optional metadata describing the type, source, and context of the memory. "
+            "E.g., {'category': 'preference', 'source': 'interaction', 'timestamp': '2025-05-10T12:00:00Z'}"
+        )
+    )] = None
+) -> List[int]:
+    """
+    Record a new memory entry in the assistant's memory store. Before recording a new memory, the assistant should `retrieve` and check if there is an old memory that is similar to the new content. If there is, it should use the `update` tool to update the old memory.
+
+    This tool is designed for background use: the assistant should call it automatically when it identifies
+    enduring user-specific information — such as stable preferences, personal background, or recurring topics — that can enhance future responses. The `content` parameter holds the distilled memory text, 
+    and `metadata` provides structured context (e.g., category, origin, timestamp).
+
+    Returns a list of newly assigned memory IDs.
+    """
     return await memory_protocol.record_memory(content, metadata)
 
+
 @mcp.tool("retrieve")
-async def retrieve_memory(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
-    """Retrieve memories similar to the query."""
+async def retrieve_memory(
+    query: Annotated[str, Field(description="A natural-language prompt or key phrase to search the memory store." )],
+    top_k: Annotated[int, Field(description="The maximum number of relevant memories to return.", ge=1, le=100)] = 5
+) -> List[Dict[str, Any]]:
+    """
+    Retrieve up to `top_k` past memories most semantically similar to the input `query`.
+
+    The assistant should automatically invoke this function when it needs contextual user history—
+    for example, to recall stable preferences, earlier-discussed projects, or personal details—
+    without explicit user instruction. Returns a list of memory entries, each including:
+      - `content`: the stored memory text
+      - `metadata`: associated metadata such as category, timestamp, and source context
+
+    Args:
+      query: Text to match against stored memories.
+      top_k: Number of top-matching memories to retrieve.
+
+    Returns:
+      A list of dictionaries with keys `content`, and `metadata`, ordered by relevance.
+    """
     return await memory_protocol.retrieve_memory(query, top_k)
 
+
 @mcp.tool("recent")
-async def get_recent_memories(limit: int = 10) -> List[Dict[str, Any]]:
-    """Get the most recent memories."""
+async def get_recent_memories(
+    limit: Annotated[int, Field(
+        description="Maximum number of recent memories to retrieve.",
+        ge=1, le=100
+    )] = 10
+) -> List[Dict[str, Any]]:
+    """
+    Retrieve the most recently recorded memory entries, up to `limit` items.
+
+    The assistant should automatically call this function when composing responses that benefit from the freshest context—
+    such as referencing what the user just said, recent preferences, or newly provided details.
+
+    Each returned entry contains:
+      - `content`: The stored memory text
+      - `metadata`: Associated metadata (e.g., timestamp, category, context source)
+
+    Args:
+      limit: The maximum number of recent memories to return.
+
+    Returns:
+      A list of memory dictionaries ordered from newest to oldest.
+    """
     return await memory_protocol.get_recent_memories(limit)
+
+
+@mcp.tool("update")
+async def update_memory(
+    memory_id: Annotated[int, Field(description="The ID of the memory to update")],
+    new_content: Annotated[str, Field(description="The new content to replace the existing memory")],
+    metadata: Annotated[Dict[str, Any], Field(
+        description=(
+            "Optional metadata describing the type, source, and context of the updated memory. "
+            "E.g., {'category': 'preference', 'source': 'interaction', 'timestamp': '2025-05-10T12:00:00Z'}"
+        )
+    )] = None,
+    user_confirmed: Annotated[bool, Field(description="User's explicit confirmation to update the memory")] = False
+) -> bool:
+    """
+    Update an existing memory with new content and metadata.
+
+    This tool should only be used when there is an old memory that is similar to the new content, which can be checked whenever there is a new memory recorded. The update action must be confirmed by the user.
+    The assistant should first retrieve the existing memory, show it to the user, and get their confirmation before proceeding with the update.
+
+    Args:
+        memory_id: The ID of the memory to update
+        new_content: The new content to replace the existing memory
+        metadata: Optional metadata for the updated memory
+        user_confirmed: Must be True to proceed with the update
+
+    Returns:
+        True if the update was successful, raises an exception otherwise
+    """
+    if not user_confirmed:
+        raise ValueError("User confirmation is required to update a memory")
+    return await memory_protocol.update_memory(memory_id, new_content, metadata)
 
 @mcp.tool("visualize")
 async def visualize_memories() -> str:
-    """Generate an interactive visualization of memory embeddings."""
+    """
+    Create and return a URL or embedded HTML snippet for an interactive visualization of user memory embeddings.
+
+    The visualization highlights semantic clusters and temporal trends among recorded memories, enabling the assistant or user to explore how different preferences or details relate. 
+    The assistant should automatically call this tool when a visual overview of stored memories would improve context or transparency.
+    After all, this is just a nice visualization, so don't use it too frequently, but should be used when the user asks for it.
+
+    Returns:
+      A string of a URL pointing to a hosted interactive visualization dashboard
+    """
     return await memory_protocol.visualize_memories()
+
+@mcp.prompt("save_chat")
+async def save_chat() -> str:
+    """
+    Analyze the ongoing chat to identify and persist important user-specific information.
+    """
+    return "Based on the chat history, identify some of the important memories and save them."
+
+
 
 async def main():
     try:
