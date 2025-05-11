@@ -23,6 +23,10 @@ import pandas as pd
 import shutil
 from typing import Annotated
 from pydantic import Field
+from sklearn.cluster import KMeans
+import plotly.graph_objects as go
+from scipy.spatial import distance
+import textwrap
 
 from dotenv import load_dotenv
 
@@ -328,6 +332,7 @@ class MemoryProtocol:
             vectors = np.array([hit.vector for hit in results])
             contents = [hit.payload["content"] for hit in results]
             timestamps = [datetime.fromisoformat(hit.payload["timestamp"]).strftime("%Y-%m-%d %H:%M:%S") for hit in results]
+            
             # Dimensionality reduction: t-SNE for small, UMAP for large
             if len(vectors) < 768:
                 from sklearn.manifold import TSNE
@@ -354,6 +359,7 @@ class MemoryProtocol:
                 None,
                 lambda: reducer.fit_transform(vectors)
             )
+            
             # Prepare DataFrame for Plotly
             df = pd.DataFrame({
                 'x': vectors_2d[:, 0],
@@ -361,28 +367,108 @@ class MemoryProtocol:
                 'content': contents,
                 'timestamp': timestamps
             })
-            # Create density contour background
+            
+            # Perform Clustering
+            cluster_number = min(5, len(df))  # Use at most 5 clusters
+            kmeans = KMeans(n_clusters=cluster_number, random_state=42, n_init='auto')
+            df['cluster'] = kmeans.fit_predict(vectors_2d)
+            cluster_centers = kmeans.cluster_centers_
+            
+            # Find Closest Point to each Cluster Center
+            closest_points_indices = []
+            for i in range(len(cluster_centers)):
+                center = cluster_centers[i]
+                points_in_cluster = df[df['cluster'] == i][['x', 'y']].values
+                
+                if len(points_in_cluster) == 0:
+                    continue
+                    
+                # Calculate distances from the center to all points in this cluster
+                distances_to_center = [distance.euclidean(point, center) for point in points_in_cluster]
+                
+                # Find the index of the minimum distance within the subset
+                min_dist_idx_in_subset = np.argmin(distances_to_center)
+                
+                # Get the original index from the main dataframe
+                original_idx = df[df['cluster'] == i].index[min_dist_idx_in_subset]
+                closest_points_indices.append(original_idx)
+            
+            df_closest_points = df.loc[closest_points_indices]
+            
+            # Create Plot
+            # Base density contour
             fig = px.density_contour(df, x='x', y='y',
-                                     color_discrete_sequence=['#4A90E2'],
-                                     nbinsx=30, nbinsy=30)
-            fig.add_trace(px.scatter(df, x='x', y='y',
-                                     hover_data=['content', 'timestamp'],
-                                     opacity=0.7,
-                                     color_discrete_sequence=['#222']).data[0])
-            fig.update_layout(
-                title='Memory Embeddings Visualization',
-                xaxis_title='Dim 1',
-                yaxis_title='Dim 2',
-                template='plotly_white',
-                showlegend=False
+                                     nbinsx=cluster_number * 2, nbinsy=cluster_number * 2)
+            
+            # Style the contour trace
+            fig.update_traces(
+                contours_coloring='fill',
+                colorscale='Blues',
+                contours_showlabels=False,
+                opacity=0.6,
+                selector=dict(type='histogram2dcontour')
             )
+            if len(fig.data) > 0 and isinstance(fig.data[0], go.Histogram2dContour):
+                fig.data[0].showscale = False
+            
+            # Add scatter points
+            fig.add_trace(go.Scatter(
+                x=df['x'],
+                y=df['y'],
+                mode='markers',
+                marker=dict(
+                    color='#222222',
+                    size=7,
+                    opacity=0.7
+                ),
+                customdata=df[['content', 'timestamp']],
+                hovertemplate="<b>Content:</b> %{customdata[0]}<br><b>Timestamp:</b> %{customdata[1]}<extra></extra>"
+            ))
+            
+            def wrap_text(text, width=80):
+                """Wrap text with <br> tags for Plotly annotations."""
+                return "<br>".join(textwrap.wrap(text, width))
+            # Add Text Labels with Boxes for the closest points
+            for i, row in df_closest_points.iterrows():
+            
+                fig.add_annotation(
+                    x=row['x'],
+                    y=row['y'],
+                    text=wrap_text(row['content']),
+                    showarrow=False,
+                    xanchor="left",
+                    yanchor="bottom",
+                    xshift=7,
+                    yshift=7,
+                    font=dict(family="Arial, Sans-serif", size=10, color="#111111"),
+                    align="left",
+                    bordercolor="#777777",
+                    borderwidth=1,
+                    borderpad=4,
+                    bgcolor="rgba(255, 255, 255, 0.9)",
+                    opacity=1
+                )
+            
+            # Layout and Styling
+            fig.update_layout(
+                title_text='Memory Embeddings Visualization',
+                title_font_size=16,
+                title_x=0.5,
+                template='plotly_white',
+                showlegend=False,
+                xaxis=dict(showgrid=False, zeroline=False, visible=False),
+                yaxis=dict(showgrid=False, zeroline=False, visible=False),
+                margin=dict(l=20, r=20, t=60, b=20),
+                hovermode='closest'
+            )
+            
             # Save HTML locally
             user_id = get_user_uuid()
             local_dir = get_app_dir() / "visualizations" / user_id
             local_dir.mkdir(parents=True, exist_ok=True)
             html_path = local_dir / "memory_visualization.html"
             pio.write_html(fig, file=str(html_path), auto_open=True)
-
+            
             return f"This is the Plotly visualization for your memory embeddings: {html_path}"
         except Exception as e:
             await log_message(f"Error visualizing memories: {str(e)}")

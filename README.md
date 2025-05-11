@@ -4,6 +4,8 @@
 <!-- [![Build Status](https://img.shields.io/github/actions/workflow/status/your-org/your-repo/ci.yml)](https://github.com/your-org/your-repo/actions)  
 [![PyPI version](https://img.shields.io/pypi/v/fastmcp-memory.svg)](https://pypi.org/project/fastmcp-memory/)   -->
 
+![alt text](https://github.com/Yuchen20/Memory_MCP_Server/blob/main/imgs/memory_server_banner.png)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)  
 
 ## Table of Contents
@@ -25,7 +27,11 @@
 - **Record Memories**: Persist user data, ideas, or important context for future runs.  
 - **Retrieve Memories**: Keyword‑ or topic‑based search over past entries.  
 - **List Recent Memories**: Quickly see the last _N_ stored items.  
+- **Update Memories**: Update existing memories with new information.  
 - **Visualize Memory Graph**: Interactive clusters showing how memories interrelate.  
+
+![alt text](https://github.com/Yuchen20/Memory_MCP_Server/blob/main/imgs/memory_visualization.png)
+
 
 ## Prerequisites
 ```bash
@@ -74,9 +80,9 @@ Add the memory server to any MCP‑capable client by adding this to your JSON co
 ```
 
 ## RoadMap
-- [ ] Memory Update
-- [ ] Improved prompt engineering for memory recording
-- [ ] Better Visualization of Memory Graph
+- [x] Memory Update
+- [x] Improved prompt engineering for memory recording
+- [x] Better Visualization of Memory Graph
 - [ ] Possible Graph Database Integration
 - [ ] Neon/Supabase Integration
 - [ ] Web UI for Memory Management
