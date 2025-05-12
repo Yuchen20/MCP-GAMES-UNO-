@@ -458,18 +458,20 @@ class MemoryProtocol:
                 fig.data[0].showscale = False
             
             # Add scatter points
+            import random
+            emojis = ['😀', '🎉', '🚀', '🐍', '🍕', '🌟', '😎', '🔥']
+            df['emoji'] = [random.choice(emojis) for _ in range(len(df))]
+
             fig.add_trace(go.Scatter(
                 x=df['x'],
                 y=df['y'],
-                mode='markers',
-                marker=dict(
-                    color='#222222',
-                    size=7,
-                    opacity=0.7
-                ),
+                mode='text',  # <-- Use text instead of markers
+                text=df['emoji'],  # <-- Emoji for each point
+                textfont=dict(size=16),  # Adjust size to your preference
                 customdata=df[['content', 'timestamp']],
                 hovertemplate="<b>Content:</b> %{customdata[0]}<br><b>Timestamp:</b> %{customdata[1]}<extra></extra>"
             ))
+
             
             def wrap_text(text, width=80):
                 """Wrap text with <br> tags for Plotly annotations."""
