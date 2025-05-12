@@ -1,14 +1,12 @@
-# Memory Plus
-
 <!-- Badges -->
 
 
 ![memory_plus](https://github.com/Yuchen20/Memory_MCP_Server/blob/main/imgs/memory_plus.png)
 
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)   ![visitors](https://visitor-badge.laobi.icu/badge?page_id=Yuchen20.Memory-Plus)
-
 ![pretty image](https://github.com/Yuchen20/Memory_MCP_Server/blob/main/imgs/memory_server_banner.png)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)   ![visitors](https://visitor-badge.laobi.icu/badge?page_id=Yuchen20.Memory-Plus)
 
 ## Introduction
 **fastmcp‑memory** provides a local RAG‑backed memory store for your MCP agent, so it can record, retrieve, list, and visualize “memories” (notes, ideas, context) across sessions. Think of it as a lightweight personal knowledge base that your agent consults and updates automatically.
