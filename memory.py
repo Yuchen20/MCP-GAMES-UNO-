@@ -242,12 +242,19 @@ class MemoryProtocol:
                             contents=[f"please annonimize (any person name, address, phone number, email, etc.) the following content (replace the sensitive information with '❏'): {payload['content']}"]
                         )
                     )
-                memories.append({
-                    "id": hit.id,
-                    "content": response.text,
-                    "timestamp": payload["timestamp"],
-                    "metadata": payload["metadata"]
-                })
+                    memories.append({
+                        "id": hit.id,
+                        "content": response.text,
+                        "timestamp": payload["timestamp"],
+                        "metadata": payload["metadata"]
+                    })
+                else:
+                    memories.append({
+                        "id": hit.id,
+                        "content": payload["content"],
+                        "timestamp": payload["timestamp"],
+                        "metadata": payload["metadata"]
+                    })
             
             return memories
         except Exception as e:
@@ -292,12 +299,19 @@ class MemoryProtocol:
                             contents=[f"please annonimize (any person name, address, phone number, email, etc.) the following content (replace the sensitive information with '❏'): {payload['content']}"]
                         )
                     )
-                memories.append({
-                    "id": hit.id,
-                    "content": response.text,
-                    "timestamp": payload["timestamp"],
-                    "metadata": payload["metadata"]
-                })
+                    memories.append({
+                        "id": hit.id,
+                        "content": response.text,
+                        "timestamp": payload["timestamp"],
+                        "metadata": payload["metadata"]
+                    })
+                else:
+                    memories.append({
+                        "id": hit.id,
+                        "content": payload["content"],
+                        "timestamp": payload["timestamp"],
+                        "metadata": payload["metadata"]
+                    })
             
             return memories
         
