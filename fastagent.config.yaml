@@ -10,7 +10,7 @@
 # If not specified, defaults to "haiku". 
 # Can be overriden with a command line switch --model=<model>, or within the Agent constructor.
 
-default_model: deepseek-chat
+default_model: gpt-4.1-mini
 # ... the rest of your config ...
 # Logging and Console Configuration:
 logger:
@@ -35,7 +35,3 @@ mcp:
     memory_server:
         command: fastmcp
         args: ["run", "memory.py:mcp"]
-    time:
-        command: uvx
-        args: ["mcp-server-time", "--local-timezone", "Europe/London"]
-

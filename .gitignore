@@ -36,3 +36,4 @@ ENV/
 *.swp
 *.swo
 /qdrant_data
+/fastagent.jsonl

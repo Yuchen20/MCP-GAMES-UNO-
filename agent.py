@@ -8,7 +8,7 @@ fast = FastAgent("memory-enhanced-agent")
     instruction="""You are a helpful AI Agent with memory capabilities. 
     You can record, retrieve, and manage memories using the memory MCP server.
     Use the memory commands to store and recall information as needed.""",
-    servers=["memory_server", "time"]
+    servers=["memory_server"]
 )
 async def main():
     async with fast.run() as agent:
