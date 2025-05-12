@@ -46,6 +46,12 @@ def get_user_uuid():
     uuid_path.write_text(user_id)
     return user_id
 
+def get_whether_to_annonimize():
+    uuid_path = get_app_dir() / "whether_to_annonimize.txt"
+    if uuid_path.exists():
+        return uuid_path.read_text().strip()
+    return "False"
+
 async def log_message(message: str):
     """Async logging function"""
     log_path = get_app_dir() / "log.txt"
@@ -136,7 +142,8 @@ class MemoryProtocol:
     async def record_memory(self, content: str, metadata: Dict[str, Any] = None) -> List[int]:
         if not self.initialized:
             await self.initialize()
-            
+
+
         # Split content into chunks
         chunks = self.text_splitter.split_text(content)
         memory_ids = []
@@ -226,9 +233,18 @@ class MemoryProtocol:
             memories = []
             for hit in results:
                 payload = hit.payload
+                if get_whether_to_annonimize() == "True":
+                    loop = asyncio.get_event_loop()
+                    response = await loop.run_in_executor(
+                        None,
+                        lambda: self.client.models.generate_content(
+                            model="gemini-2.0-flash-lite",
+                            contents=[f"please annonimize (any person name, address, phone number, email, etc.) the following content (replace the sensitive information with '❏'): {payload['content']}"]
+                        )
+                    )
                 memories.append({
                     "id": hit.id,
-                    "content": payload["content"],
+                    "content": response.text,
                     "timestamp": payload["timestamp"],
                     "metadata": payload["metadata"]
                 })
@@ -259,15 +275,31 @@ class MemoryProtocol:
             sorted_results = sorted(
                 results,
                 key=lambda x: x.payload["timestamp"],
-                reverse=True
+                reverse=False
             )[:limit]
+
+
+
+            memories = []
+            for hit in results:
+                payload = hit.payload
+                if get_whether_to_annonimize() == "True":
+                    loop = asyncio.get_event_loop()
+                    response = await loop.run_in_executor(
+                        None,
+                        lambda: self.client.models.generate_content(
+                            model="gemini-2.0-flash-lite",
+                            contents=[f"please annonimize (any person name, address, phone number, email, etc.) the following content (replace the sensitive information with '❏'): {payload['content']}"]
+                        )
+                    )
+                memories.append({
+                    "id": hit.id,
+                    "content": response.text,
+                    "timestamp": payload["timestamp"],
+                    "metadata": payload["metadata"]
+                })
             
-            return [{
-                "id": hit.id,
-                "content": hit.payload["content"],
-                "timestamp": hit.payload["timestamp"],
-                "metadata": hit.payload["metadata"]
-            } for hit in sorted_results]
+            return memories
         
         except Exception as e:
             await log_message(f"Error getting recent memories: {str(e)}")
@@ -487,6 +519,18 @@ mcp = FastMCP(
 # Create memory protocol instance
 memory_protocol = MemoryProtocol()
 
+@mcp.tool("set_whether_to_annonimize")
+async def set_whether_to_annonimize(
+    whether_to_annonimize: Annotated[bool, Field(description="Whether to annonimize the content")] = False
+) -> bool:
+    """
+    Set whether to annonimize the content.
+    """
+    # open the file and write the whether_to_annonimize
+    with open(get_app_dir() / "whether_to_annonimize.txt", "w") as f:
+        f.write(str(whether_to_annonimize))
+    return str(whether_to_annonimize)
+
 @mcp.tool("record")
 async def record_memory(
     content: Annotated[str, Field(description="A concise summary of the user detail or pattern to remember." )],
@@ -495,7 +539,7 @@ async def record_memory(
             "Optional metadata describing the type, source, and context of the memory. "
             "E.g., {'category': 'preference', 'source': 'interaction', 'timestamp': '2025-05-10T12:00:00Z'}"
         )
-    )] = None
+    )] = None,
 ) -> List[int]:
     """
     Record a new memory entry in the assistant's memory store. Before recording a new memory, the assistant should `retrieve` and check if there is an old memory that is similar to the new content. If there is, it should use the `update` tool to update the old memory.
