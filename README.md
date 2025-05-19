@@ -6,9 +6,7 @@
 
 ![pretty image](https://github.com/Yuchen20/Memory-Plus/blob/main/imgs/memory_server_banner.png)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)   ![visitors](https://visitor-badge.laobi.icu/badge?page_id=Yuchen20.Memory-Plus)
-
-[![PyPI version](https://badge.fury.io/py/memory-plus.svg)](https://pypi.org/project/memory-plus/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)   ![visitors](https://visitor-badge.laobi.icu/badge?page_id=Yuchen20.Memory-Plus) [![PyPI version](https://badge.fury.io/py/memory-plus.svg)](https://pypi.org/project/memory-plus/)
 
 
 
