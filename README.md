@@ -140,6 +140,9 @@ uv run agent_memory.py
 - [ ] Remote backup!
 - [ ] Web UI for Memory Management
 
+> If you have any feature requests, please feel free to add them by adding a new issue or by adding a new entry in the [Feature Request](https://voltaic-shell-9af.notion.site/1f84e395c1d18059849ce844fcbba903?pvs=105)
+
+
 ## License
 
 This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for details.
