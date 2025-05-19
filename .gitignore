@@ -37,3 +37,7 @@ ENV/
 *.swo
 /qdrant_data
 /fastagent.jsonl
+/CodeGraveyard
+/qdrant_export.json
+/test.ipynb
+/fastagent.config.yaml

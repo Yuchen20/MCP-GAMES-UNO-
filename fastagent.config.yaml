@@ -9,8 +9,8 @@
 #
 # If not specified, defaults to "haiku". 
 # Can be overriden with a command line switch --model=<model>, or within the Agent constructor.
-
-default_model: gpt-4.1-mini
+# In short, who are the typical individuals I might encounter at Cavendish Laboratory?
+default_model: deepseek-chat
 # ... the rest of your config ...
 # Logging and Console Configuration:
 logger:
@@ -33,5 +33,7 @@ logger:
 mcp:
   servers:
     memory_server:
+        # command: uvx
+        # args: ["memory_plus"]
         command: fastmcp
-        args: ["run", "memory.py:mcp"]
+        args: ["run", "memory_plus/core.py:mcp"]
