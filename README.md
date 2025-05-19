@@ -1,81 +1,134 @@
 <!-- Badges -->
 
 
-![memory_plus](https://github.com/Yuchen20/Memory_MCP_Server/blob/main/imgs/memory_plus.png)
+![memory_plus](https://github.com/Yuchen20/Memory-Plus/blob/main/imgs/memory_plus.png)
 
 
-![pretty image](https://github.com/Yuchen20/Memory_MCP_Server/blob/main/imgs/memory_server_banner.png)
+![pretty image](https://github.com/Yuchen20/Memory-Plus/blob/main/imgs/memory_server_banner.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)   ![visitors](https://visitor-badge.laobi.icu/badge?page_id=Yuchen20.Memory-Plus)
 
-## Introduction
-**fastmcp‑memory** provides a local RAG‑backed memory store for your MCP agent, so it can record, retrieve, list, and visualize “memories” (notes, ideas, context) across sessions. Think of it as a lightweight personal knowledge base that your agent consults and updates automatically.
-> 🏆 This repo won **First Place** in the [Infosys Cambridge AI Centre Hackathon](https://infosys-cam-ai-centre.github.io/Infosys-Cambridge-Hackathon/)!
+[![PyPI version](https://badge.fury.io/py/memory-plus.svg)](https://pypi.org/project/memory-plus/)
 
-## Features
-- **Record Memories**: Persist user data, ideas, or important context for future runs.  
-- **Retrieve Memories**: Keyword‑ or topic‑based search over past entries.  
-- **Recent Memories**: Quickly see the last _N_ stored items.  
-- **Update Memories**: Update existing memories with new information.  
-- **Visualize Memory Graph**: Interactive clusters showing how memories interrelate.  
+
+
+# Memory-Plus
+
+A lightweight, local Retrieval-Augmented Generation (RAG) memory store for MCP agents. Memory-Plus lets your agent record, retrieve, update, and visualize persistent "memories"—notes, ideas, and session context—across runs.
+
+> 🏆 **First Place** at the [Infosys Cambridge AI Centre Hackathon](https://infosys-cam-ai-centre.github.io/Infosys-Cambridge-Hackathon/)!
+
+## Key Features
+
+* **Record Memories**: Save user data, ideas, and important context.
+* **Retrieve Memories**: Search by keywords or topics over past entries.
+* **Recent Memories**: Fetch the last *N* items quickly.
+* **Update Memories**: Append or modify existing entries seamlessly.
+* **Visualize Memories**: Interactive graph clusters revealing relationships.
+* **File Import** (*since v0.1.2*): Ingest documents directly into memory.
+* **Delete Memories** (*since v0.1.2*): Remove unwanted entries.
+
+---
+
 
 ![alt text](https://github.com/Yuchen20/Memory_MCP_Server/blob/main/imgs/memory_visualization.png)
 
 
-## Prerequisites
-```bash
-# Create & activate a virtual environment
-python3 -m venv .venv  
-source .venv/bin/activate  
-````
-
 ## Installation
 
-```bash
-git clone https://github.com/Yuchen20/Memory_MCP_Server.git  
-cd fastmcp-memory  
-pip install uv
-uv pip install -r requirements.txt  
-```
+### 1. Prerequisites
 
-## Usage
+* **Google API Key**: Obtain from [Google AI Studio](https://aistudio.google.com/apikey) and set as `GOOGLE_API_KEY` in your environment:
 
-Run the memory service (MCP) standalone:
+  ```bash
+  # macOS/Linux
+  export GOOGLE_API_KEY="<YOUR_API_KEY>"
 
-```bash
-fastmcp run memory.py
-```
+  # Windows (PowerShell)
+  setx GOOGLE_API_KEY "<YOUR_API_KEY>"
+  ```
 
-Or start a local agent that uses the memory server:
-1. set the api key in fastagent.secrets.yaml
-2. add a `.env` file in the root directory and set the `GOOGLE_API_KEY=<your-api-key-here>`
-```bash
-uv run agent.py
-```
+* **UV Runtime**: Required to serve the MCP plugin.
 
-## Configuration
+  ```bash
+  pip install uv
+  ```
 
-Add the memory server to any MCP‑capable client by adding this to your JSON config:
+  Or install via shell scripts:
+
+  ```bash
+  # macOS/Linux
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+
+  # Windows (PowerShell)
+  powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+  ```
+
+
+### VS Code One-Click Setup
+
+Click the badge below to automatically install and configure Memory-Plus in VS Code (Insiders):
+
+
+[![One Click Install in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=memory-plus&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22memory-plus%22%5D%7D)
+
+This will add the following to your `settings.json`:
 
 ```json
 {
-  "servers": {
-    "memory_server": {
-      "type": "stdio",
-      "command": "fastmcp",
-      "args": ["run", "absolute/path/to/memory.py"]
+  "mcpServers": {
+    ..., // your other MCP servers
+    "memory-plus": {
+      "command": "uvx",
+      "args": ["memory-plus"]
     }
   }
 }
 ```
 
+For `cursor`, go to `file -> Preferences -> Cursor Settings -> MCP` and add the following:
 
-## 🧠 One-Line Import
+```json
+{
+  "mcpServers": {
+    ..., // your other MCP servers
+    "memory-plus": {
+      "command": "uvx",
+      "args": ["memory-plus"]
+    }
+  }
+}
+```
 
-If you have past information—such as emails, chats, or AI conversations—that you'd like to store in the memory server, simply export them as a text file and run the following one-liner:
+For other IDEs it should be mostly similar to the above.
+
+
+## Local Testing and Development
+
+Using MCP Inspector, you can test the memory-plus server locally.
 
 ```bash
-python load_text_to_memory.py path/to/your/previous_memory.txt
+git clone https://github.com/Yuchen20/Memory-Plus.git
+cd Memory-Plus
+npx @modelcontextprotocol/inspector fastmcp run run .\\memory_plus\\mcp.py
+```
+
+Or If you prefer using this MCP in an actual Chat Session. There is a template chatbot in `agent.py`.
+
+```bash
+# Clone the repository
+git clone https://github.com/Yuchen20/Memory-Plus.git
+cd Memory-Plus
+
+# Install dependencies
+pip install uv
+uv pip install fast-agent-mcp
+uv run fast-agent setup        
+```
+setup the `fastagent.config.yaml` and `fastagent.secrets.yaml` with your own API keys.
+```bash
+# Run the agent
+uv run agent_memory.py
 ```
 
 
@@ -83,8 +136,8 @@ python load_text_to_memory.py path/to/your/previous_memory.txt
 - [x] Memory Update
 - [x] Improved prompt engineering for memory recording
 - [x] Better Visualization of Memory Graph
-- [ ] Possible Graph Database Integration
-- [ ] Neon/Supabase Integration
+- [x] File Import
+- [ ] Remote backup!
 - [ ] Web UI for Memory Management
 
 ## License
