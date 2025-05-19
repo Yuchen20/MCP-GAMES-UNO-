@@ -100,6 +100,28 @@ For `cursor`, go to `file -> Preferences -> Cursor Settings -> MCP` and add the 
 }
 ```
 
+For `Cline` add the following to your `cline_mcp_settings.json`:
+```json
+{
+  "mcpServers": {
+    ..., // your other MCP servers
+    "memory-plus": {
+      "disabled": false,
+      "timeout": 300,
+      "command": "uvx",
+      "args": [
+        "memory-plus"
+      ],
+      "env": {
+        "GOOGLE_API_KEY": "${{ secrets.GOOGLE_API_KEY }}"
+      },
+      "transportType": "stdio"
+    }
+  }
+}
+```
+**remember to add the `GOOGLE_API_KEY` to your secrets / environment variables.**
+
 For other IDEs it should be mostly similar to the above.
 
 
