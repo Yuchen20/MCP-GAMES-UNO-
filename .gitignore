@@ -41,3 +41,4 @@ ENV/
 /qdrant_export.json
 /test.ipynb
 /fastagent.config.yaml
+/Notes.md

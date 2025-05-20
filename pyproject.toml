@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "memory-plus"
-version = "0.1.2"
+version = "0.1.4"
 dependencies = [
     "fastmcp<2.3.4",
     "qdrant-client",
@@ -31,7 +31,7 @@ description = "A memory management server using FastMCP"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-keywords = ["memory", "server", "FastMCP"]
+keywords = ["memory", "server", "FastMCP", "mcp"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python"
@@ -42,7 +42,7 @@ Homepage = "https://github.com/Yuchen20/Memory-Plus"
 # Documentation = "https://readthedocs.org"
 Repository = "https://github.com/Yuchen20/Memory-Plus.git"
 "Bug Tracker" = "https://github.com/Yuchen20/Memory-Plus/issues"
-Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+Changelog = "https://github.com/Yuchen20/Memory-Plus/blob/main/CHANGELOG.md"
 
 [project.scripts]
 memory-plus = "memory_plus.mcp:main"

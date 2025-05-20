@@ -5,7 +5,7 @@ from pydantic import Field
 import json
 
 from memory_plus.memory_protocol import MemoryProtocol
-from memory_plus.utils import get_app_dir, log_message
+from memory_plus.utils import get_app_dir
 
 # Create memory protocol instance
 memory_protocol = MemoryProtocol()
@@ -15,19 +15,50 @@ mcp = FastMCP(
     name="memory_server",
     instructions="""
     Memory Server Protocol:
-    1. Initialize by loading recorded categories from resource://recorded_memory_categories
-       - Enables the assistant to know which types of memories are available.
-    2. Recording logic:
-       a. On identifying enduring user-specific information, call retrieve(content, top_k) to fetch similar entries.
-       b. If no entry exceeds the similarity threshold, call record(content, metadata).
-       c. Otherwise, call update(memory_id, new_content, metadata) to refresh the existing memory.
-    3. Retrieval modes:
-       - retrieve: semantic search returning up to top_k relevant memories.
-       - recent: fetch most recently stored memories when temporal context is needed.
-    4. Visualization: visualize the memories.
+
+    1. User Identification:
+       - Assume all interactions are with `default_user`.
+       - If `default_user` is not recognized, proactively identify them before proceeding.
+
+    2. Category Initialization:
+       - On startup, load recorded categories via `resource://recorded_memory_categories`.
+       - Use this manifest to know which memory types exist and avoid unnecessary retrievals.
+
+    3. Memory Retrieval:
+       - Begin each interaction by outputting exactly `Remembering...`.
+       - Retrieve context using:
+         • `retrieve(query, top_k)` for semantic queries.
+         • `recent(count)` for the most recently stored memories when temporal context is needed.
+
+    4. Active Memory Listening:
+       - Continuously monitor the conversation for new user-specific information across diverse categories, including but not limited to:
+         a) Basic Identity (age, gender, location, job, education)
+         b) Behaviors (interests, habits, daily routines)
+         c) Preferences (communication style, preferred language, coding preferences, user interface tastes)
+         d) Goals (short- and long-term aspirations, project objectives)
+         e) Relationships (personal and professional networks, up to three degrees of separation)
+         f) Expertise & Skills (programming languages, domain knowledge, certifications)
+         g) Contextual Activities (current tasks, active projects, reading list, workouts)
+         h) Sentiments & Emotions (emotional tone, frustration, enthusiasm)
+         i) Miscellaneous Personal Details (hobbies, significant life events, cultural background)
+
+    5. Memory Update & Recording:
+       - For each candidate memory:
+         a. Call `retrieve(content, top_k)` to fetch similar entries.
+         b. If similarity < threshold, call `record(content, metadata)`.
+         c. Otherwise, call `update(memory_id, new_content, metadata)`.
+       - Use existing categories from the manifest when constructing metadata.
+       - If `resource://recorded_memory_categories` hasn't been fetched, do so before recording.
+
+    6. Memory Visualization:
+       - Provide a visualization of stored memories on demand or for debugging.
+
+    All operations run transparently in the background to enhance personalization without user intervention.
     """,
     log_level="ERROR"
 )
+
+
 
 @mcp.tool("set_whether_to_annonimize")
 def set_whether_to_annonimize(
@@ -286,7 +317,6 @@ def main():
     args = parser.parse_args()
     
     try:
-        log_message("Starting memory server")
         memory_protocol.initialize()
         
         # Update FastMCP configuration
@@ -295,10 +325,9 @@ def main():
         mcp.log_level = args.log_level
         
         mcp.run()
-        print('memory server started')
+        # print('memory server started')
     except Exception as e:
-        log_message(f"Error starting memory server: {str(e)}")
-        raise
+        return f"Error: {str(e)}"
 
 if __name__ == "__main__":
     main() 

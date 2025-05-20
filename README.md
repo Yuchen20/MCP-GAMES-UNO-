@@ -73,15 +73,18 @@ Click the badge below to automatically install and configure Memory-Plus in VS C
 This will add the following to your `settings.json`:
 
 ```json
-{
-  "mcpServers": {
-    ..., // your other MCP servers
-    "memory-plus": {
-      "command": "uvx",
-      "args": ["memory-plus"]
+  {
+    "mcpServers": {
+      ..., // your other MCP servers
+      "memory-plus": {
+        "command": "uvx",
+        "args": [
+          "-q",
+          "memory-plus@latest"
+        ],
+      }
     }
   }
-}
 ```
 
 For `cursor`, go to `file -> Preferences -> Cursor Settings -> MCP` and add the following:
@@ -89,13 +92,16 @@ For `cursor`, go to `file -> Preferences -> Cursor Settings -> MCP` and add the 
 ```json
 {
   "mcpServers": {
-    ..., // your other MCP servers
     "memory-plus": {
       "command": "uvx",
-      "args": ["memory-plus"]
+      "args": [
+        "-q",
+        "memory-plus@latest"
+      ],
     }
   }
 }
+
 ```
 
 For `Cline` add the following to your `cline_mcp_settings.json`:
@@ -108,7 +114,8 @@ For `Cline` add the following to your `cline_mcp_settings.json`:
       "timeout": 300,
       "command": "uvx",
       "args": [
-        "memory-plus"
+        "-q",
+        "memory-plus@latest"
       ],
       "env": {
         "GOOGLE_API_KEY": "${{ secrets.GOOGLE_API_KEY }}"
@@ -118,7 +125,14 @@ For `Cline` add the following to your `cline_mcp_settings.json`:
   }
 }
 ```
-**remember to add the `GOOGLE_API_KEY` to your secrets / environment variables.**
+**remember to add the `GOOGLE_API_KEY` to your secrets / environment variables. Or provide it with:**
+```json
+"env": {
+        "GOOGLE_API_KEY": "<YOUR_API_KEY>"
+      }
+```
+just after the `args` array.
+
 
 For other IDEs it should be mostly similar to the above.
 

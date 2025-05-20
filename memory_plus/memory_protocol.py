@@ -18,7 +18,7 @@ from scipy.spatial import distance
 import textwrap
 from pathlib import Path
 
-from .utils import get_app_dir, get_user_uuid, get_whether_to_annonimize, log_message
+from .utils import get_app_dir, get_user_uuid, get_whether_to_annonimize
 
 class MemoryProtocol:
     def __init__(self, qdrant_path: str = None):
@@ -35,7 +35,7 @@ class MemoryProtocol:
         if self.initialized:
             return
             
-        log_message("Starting memory server initialization")
+        # log_message("Starting memory server initialization")
         
         # Initialize text splitter with improved settings
         self.text_splitter = RecursiveCharacterTextSplitter(
@@ -58,7 +58,7 @@ class MemoryProtocol:
         # Initialize Gemini with explicit API key
         self.client = genai.Client(api_key=self.api_key)
         
-        log_message("Memory server initialization completed")
+        # log_message("Memory server initialization completed")
         self.initialized = True
 
     def _get_qdrant_client(self):
@@ -110,8 +110,8 @@ class MemoryProtocol:
             else:
                 raise ValueError(f"Unexpected embedding response format: {response}")
         except Exception as e:
-            log_message(f"Error generating embedding: {str(e)}")
-            raise
+            # log_message(f"Error generating embedding: {str(e)}")
+            return f"Error: {str(e)}"
 
     def load_recorded_categories(self, ) -> Dict[str, List[str]]:
         """Load the existing category/tag structure from the JSON file."""
@@ -190,8 +190,8 @@ class MemoryProtocol:
                     
                     memory_ids.append(memory_id)
                 except Exception as e:
-                    log_message(f"Error processing chunk: {str(e)}")
-                    raise
+                    # log_message(f"Error processing chunk: {str(e)}")
+                    return [f"Error: {str(e)}"]
             return memory_ids
 
         return self._with_qdrant(record_operation)
@@ -236,8 +236,8 @@ class MemoryProtocol:
             
                 return memories
             except Exception as e:
-                log_message(f"Error retrieving memory: {str(e)}")
-                raise
+                # log_message(f"Error retrieving memory: {str(e)}")
+                return f"Error: {str(e)}"
 
         return self._with_qdrant(retrieve_operation)
     
@@ -275,8 +275,8 @@ class MemoryProtocol:
                 return memories
             
             except Exception as e:
-                log_message(f"Error getting recent memories: {str(e)}")
-                raise
+                # log_message(f"Error getting recent memories: {str(e)}")
+                return f"Error: {str(e)}"
 
         return self._with_qdrant(recent_operation)
 
@@ -310,11 +310,11 @@ class MemoryProtocol:
                     ]
                 )
                 
-                log_message(f"Successfully updated memory with ID: {memory_id}")
+                # log_message(f"Successfully updated memory with ID: {memory_id}")
                 return True
             except Exception as e:
-                log_message(f"Error updating memory: {str(e)}")
-                raise
+                # log_message(f"Error updating memory: {str(e)}")
+                return False
 
         return self._with_qdrant(update_operation)
 
@@ -472,8 +472,8 @@ class MemoryProtocol:
                 
                 return f"This is the Plotly visualization for your memory embeddings: {html_path}"
             except Exception as e:
-                log_message(f"Error visualizing memories: {str(e)}")
-                raise
+                # log_message(f"Error visualizing memories: {str(e)}")
+                return f"Error: {str(e)}"
 
         return self._with_qdrant(visualize_operation)
 
@@ -492,11 +492,11 @@ class MemoryProtocol:
                     )
                 )
                 
-                log_message(f"Successfully deleted memory with ID: {memory_id}")
+                # log_message(f"Successfully deleted memory with ID: {memory_id}")
                 return True
             except Exception as e:
-                log_message(f"Error deleting memory: {str(e)}")
-                raise
+                # log_message(f"Error deleting memory: {str(e)}")
+                return False
 
         return self._with_qdrant(delete_operation)
 
@@ -548,9 +548,9 @@ class MemoryProtocol:
                 # Record the chunk
                 memory_ids.extend(self.record_memory(chunk, chunk_metadata))
             
-            log_message(f"Successfully imported {len(memory_ids)} chunks from {file_path}")
+            # log_message(f"Successfully imported {len(memory_ids)} chunks from {file_path}")
             return memory_ids
             
         except Exception as e:
-            log_message(f"Error importing file: {str(e)}")
-            raise 
+            # log_message(f"Error importing file: {str(e)}")
+            return [f"Error: {str(e)}"] 

@@ -24,10 +24,4 @@ def get_whether_to_annonimize():
     uuid_path = get_app_dir() / "whether_to_annonimize.txt"
     if uuid_path.exists():
         return uuid_path.read_text().strip()
-    return "False"
-
-def log_message(message: str):
-    """Logging function"""
-    log_path = get_app_dir() / "log.txt"
-    with open(log_path, "a") as f:
-        f.write(f"{message} at {time.strftime('%Y-%m-%d %H:%M:%S')}\n") 
+    return "False" 
