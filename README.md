@@ -65,17 +65,19 @@ A lightweight, local Retrieval-Augmented Generation (RAG) memory store for MCP a
 
 ### VS Code One-Click Setup
 
-Click the badge below to automatically install and configure Memory-Plus in VS Code (Insiders):
+Click the badge below to automatically install and configure Memory-Plus in VS Code:
 
 
-[![One Click Install in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=memory-plus&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22memory-plus%22%5D%7D)
+[![One Click Install in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=memory-plus&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22-q%22%2C%22memory-plus%40latest%22%5D%7D)
+
+
 
 This will add the following to your `settings.json`:
 
 ```json
   {
     "mcpServers": {
-      ..., // your other MCP servers
+      //...,  your other MCP servers
       "memory-plus": {
         "command": "uvx",
         "args": [
@@ -92,6 +94,7 @@ For `cursor`, go to `file -> Preferences -> Cursor Settings -> MCP` and add the 
 ```json
 {
   "mcpServers": {
+    //...,  your other MCP servers
     "memory-plus": {
       "command": "uvx",
       "args": [
@@ -108,7 +111,7 @@ For `Cline` add the following to your `cline_mcp_settings.json`:
 ```json
 {
   "mcpServers": {
-    ..., // your other MCP servers
+    //...,  your other MCP servers
     "memory-plus": {
       "disabled": false,
       "timeout": 300,
