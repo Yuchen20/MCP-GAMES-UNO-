@@ -6,7 +6,7 @@
 
 ![pretty image](https://github.com/Yuchen20/Memory-Plus/blob/main/imgs/memory_server_banner.png)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)   ![visitors](https://visitor-badge.laobi.icu/badge?page_id=Yuchen20.Memory-Plus) [![PyPI version](https://badge.fury.io/py/memory-plus.svg)](https://pypi.org/project/memory-plus/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)   ![visitors](https://visitor-badge.laobi.icu/badge?page_id=Yuchen20.Memory-Plus) [![PyPI version](https://badge.fury.io/py/memory-plus.svg)](https://pypi.org/project/memory-plus/) [![PyPI Downloads](https://static.pepy.tech/badge/memory-plus)](https://pepy.tech/projects/memory-plus)
 
 
 
@@ -36,7 +36,10 @@ A lightweight, local Retrieval-Augmented Generation (RAG) memory store for MCP a
 
 ### 1. Prerequisites
 
-* **Google API Key**: Obtain from [Google AI Studio](https://aistudio.google.com/apikey) and set as `GOOGLE_API_KEY` in your environment:
+**Google API Key**
+Obtain from [Google AI Studio](https://aistudio.google.com/apikey) and set as `GOOGLE_API_KEY` in your environment.
+<details>
+<summary><b>Setup Google API Key Example</b></summary>
 
   ```bash
   # macOS/Linux
@@ -45,22 +48,26 @@ A lightweight, local Retrieval-Augmented Generation (RAG) memory store for MCP a
   # Windows (PowerShell)
   setx GOOGLE_API_KEY "<YOUR_API_KEY>"
   ```
+</details>
 
-* **UV Runtime**: Required to serve the MCP plugin.
+**UV Runtime**
+Required to serve the MCP plugin.
+<summary><b>Install UV Runtime</b></summary>
+<details>
+```bash
+pip install uv
+```
 
-  ```bash
-  pip install uv
-  ```
+Or install via shell scripts:
 
-  Or install via shell scripts:
+```bash
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-  ```bash
-  # macOS/Linux
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-
-  # Windows (PowerShell)
-  powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-  ```
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+</details>
 
 
 ### VS Code One-Click Setup
@@ -89,23 +96,15 @@ This will add the following to your `settings.json`:
   }
 ```
 
-For `cursor`, go to `file -> Preferences -> Cursor Settings -> MCP` and add the following:
-
+For `cursor`, go to `file -> Preferences -> Cursor Settings -> MCP` and add the above config.
+If you didn't add the `GOOGLE_API_KEY` to your secrets / environment variables, you can add it with:
 ```json
-{
-  "mcpServers": {
-    //...,  your other MCP servers
-    "memory-plus": {
-      "command": "uvx",
-      "args": [
-        "-q",
-        "memory-plus@latest"
-      ],
-    }
-  }
-}
-
+"env": {
+        "GOOGLE_API_KEY": "<YOUR_API_KEY>"
+      }
 ```
+just after the `args` array with in the `memory-plus` dictionary.
+
 
 For `Cline` add the following to your `cline_mcp_settings.json`:
 ```json
@@ -128,14 +127,6 @@ For `Cline` add the following to your `cline_mcp_settings.json`:
   }
 }
 ```
-**remember to add the `GOOGLE_API_KEY` to your secrets / environment variables. Or provide it with:**
-```json
-"env": {
-        "GOOGLE_API_KEY": "<YOUR_API_KEY>"
-      }
-```
-just after the `args` array.
-
 
 For other IDEs it should be mostly similar to the above.
 
