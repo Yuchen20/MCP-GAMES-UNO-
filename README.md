@@ -1,10 +1,10 @@
 <!-- Badges -->
 
 
-![memory_plus](https://github.com/Yuchen20/Memory-Plus/blob/main/imgs/memory_plus.png)
+![memory_plus](https://memory-plus.imgix.net/memory_plus.png)
 
 
-![pretty image](https://github.com/Yuchen20/Memory-Plus/blob/main/imgs/memory_server_banner.png)
+![pretty image](https://memory-plus.imgix.net/memory_server_banner.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)   ![visitors](https://visitor-badge.laobi.icu/badge?page_id=Yuchen20.Memory-Plus) [![PyPI version](https://badge.fury.io/py/memory-plus.svg)](https://pypi.org/project/memory-plus/) [![PyPI Downloads](https://static.pepy.tech/badge/memory-plus)](https://pepy.tech/projects/memory-plus)
 
@@ -18,18 +18,21 @@ A lightweight, local Retrieval-Augmented Generation (RAG) memory store for MCP a
 
 ## Key Features
 
-* **Record Memories**: Save user data, ideas, and important context.
-* **Retrieve Memories**: Search by keywords or topics over past entries.
-* **Recent Memories**: Fetch the last *N* items quickly.
-* **Update Memories**: Append or modify existing entries seamlessly.
-* **Visualize Memories**: Interactive graph clusters revealing relationships.
-* **File Import** (*since v0.1.2*): Ingest documents directly into memory.
-* **Delete Memories** (*since v0.1.2*): Remove unwanted entries.
+* **Record Memories**：Save user data, ideas, and important context.
+* **Retrieve Memories**：Search by keywords or topics over past entries.
+* **Recent Memories**：Fetch the last *N* items quickly.
+* **Update Memories**：Append or modify existing entries seamlessly.
+* **Visualize Memories**：Interactive graph clusters revealing relationships.
+* **File Import** (*since v0.1.2*)：Ingest documents directly into memory.
+* **Delete Memories** (*since v0.1.2*)：Remove unwanted entries.
+* **Memory for Memories** (*since v0.1.4*)：Now we use `resources` to teach your AI exactly when (and when not) to recall past interactions.
+* **Memory Versioning** (*since v0.1.4*)：When memories are updated, we keep the old versions to provide a full history.
+
 
 ---
 
 
-![alt text](https://github.com/Yuchen20/Memory_MCP_Server/blob/main/imgs/memory_visualization.png)
+![alt text](https://memory-plus.imgix.net/memory_visualization.png)
 
 
 ## Installation
@@ -38,6 +41,7 @@ A lightweight, local Retrieval-Augmented Generation (RAG) memory store for MCP a
 
 **Google API Key**
 Obtain from [Google AI Studio](https://aistudio.google.com/apikey) and set as `GOOGLE_API_KEY` in your environment.
+> Note that we will only use the `Gemini Embedding API` with this API key, so it is **Entirely Free** for you to use!
 <details>
 <summary><b>Setup Google API Key Example</b></summary>
 
@@ -52,8 +56,9 @@ Obtain from [Google AI Studio](https://aistudio.google.com/apikey) and set as `G
 
 **UV Runtime**
 Required to serve the MCP plugin.
-<summary><b>Install UV Runtime</b></summary>
 <details>
+<summary><b>Install UV Runtime</b></summary>
+
 ```bash
 pip install uv
 ```
@@ -173,5 +178,16 @@ uv run agent_memory.py
 
 ## License
 
-This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for details.
+This project is licensed under the **Apache License 2.0**. See [LICENSE](./LICENSE) for details.
 
+
+## FAQ
+
+### 1. Why is memory-plus not working?
+- Memory-plus has a few dependencies that can be slow to download the first time. It typically takes around 1 minute to fetch everything needed.
+- Once dependencies are installed, subsequent usage will be much faster.
+- If you experience other issues, please feel free to open a new issue on the repository.
+
+### 2. How do I use memory-plus in a real chat session?
+- Simply add the MCP JSON file to your MCP setup.
+- Once added, memory-plus will automatically activate when needed.
