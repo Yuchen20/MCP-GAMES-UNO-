@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/yuchen20-memory-plus-badge.png)](https://mseep.ai/app/yuchen20-memory-plus)
+
 <!-- Badges -->
 
 
